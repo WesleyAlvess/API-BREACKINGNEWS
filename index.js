@@ -1,8 +1,12 @@
 const express = require('express')
 const userRoute = require('./src/routes/user.route')
+const bodyParser = require('body-parser')
 
 const app = express()
+const port = 3000
 
-app.use("/soma", userRoute)
+app.use(bodyParser.json())
 
-app.listen(3000)
+app.use("/user", userRoute)
+
+app.listen(port, () => console.log(`Servidor rodando na porta ${port}`))
