@@ -1,4 +1,4 @@
-import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserService } from "../services/news.service.js"
+import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserService, updateService } from "../services/news.service.js"
 
 const create = async (req, res) => {
     try {
@@ -180,11 +180,38 @@ const byUser = async (req, res) => {
                 userAvatar: item.user.avatar,
             }))
         })
-        
+
     } catch (err) {
         res.status(500).send({ message: err.message })
     }
 }
+
+const update = async (req, res) => {
+    try {
+        const { title, text, banner } = req.body
+
+        const { id } = req.params
+
+        if (!title && !text && !banner) {
+            return res.status(400).send({ message: "Submit at least one field to update the post" })
+        }
+
+        const news = await findByIdService(id)
+
+
+        if (news.user._id != req.userId) {
+            return res.status(400).send({ message: "You didn't update this post" })
+        }
+
+        await updateService(id, title, text, banner)
+
+        return res.status(200).send({ message: "Post successfully updated" })
+
+    } catch (err) {
+        res.status(500).send({ message: err.message })
+    }
+}
+
 export {
     create,
     findAll,
@@ -192,4 +219,5 @@ export {
     findById,
     searchByTitle,
     byUser,
+    update
 }
