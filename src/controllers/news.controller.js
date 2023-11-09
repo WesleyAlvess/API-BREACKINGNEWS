@@ -1,4 +1,4 @@
-import { createService, findAllService, countNews, topNewsService, findByIdService } from "../services/news.service.js"
+import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserService } from "../services/news.service.js"
 
 const create = async (req, res) => {
     try {
@@ -131,9 +131,65 @@ const findById = async (req, res) => {
     }
 }
 
+const searchByTitle = async (req, res) => {
+    try {
+        const { title } = req.query
+        console.log(title);
+
+        const news = await searchByTitleService(title)
+
+        if (news.length === 0) {
+            return res.status(400).send({ message: "There are no news with title" })
+        }
+
+        return res.send({
+            results: news.map(item => ({
+                id: item._id,
+                title: item.title,
+                text: item.text,
+                banner: item.banner,
+                likes: item.likes,
+                comments: item.comments,
+                name: item.user.name,
+                userName: item.user.username,
+                userAvatar: item.user.avatar,
+            }))
+        })
+
+    } catch (err) {
+        res.status(500).send({ message: err.message })
+    }
+}
+
+const byUser = async (req, res) => {
+    try {
+        const id = req.userId
+
+        const news = await byUserService(id)
+
+        return res.send({
+            results: news.map(item => ({
+                id: item._id,
+                title: item.title,
+                text: item.text,
+                banner: item.banner,
+                likes: item.likes,
+                comments: item.comments,
+                name: item.user.name,
+                userName: item.user.username,
+                userAvatar: item.user.avatar,
+            }))
+        })
+        
+    } catch (err) {
+        res.status(500).send({ message: err.message })
+    }
+}
 export {
     create,
     findAll,
     topNews,
     findById,
+    searchByTitle,
+    byUser,
 }
